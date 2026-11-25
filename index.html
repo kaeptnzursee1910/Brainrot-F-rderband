@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brainrot-Fließband</title>
+<meta name="description" content="Kaufen · Fusionieren · Verteidigen – ein Idle-Spiel für Handy, iPad und Browser.">
+<meta name="theme-color" content="#1a0b2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Brainrot">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="logo"><span class="emoji">🦈</span> BRAINROT<span>FLIESSBAND</span></div>
+  <div class="stats">
+    <div class="stat"><small>Lire</small><b id="money">₤ 0</b></div>
+    <div class="stat"><small>Einkommen</small><b id="income">0/s</b></div>
+    <div class="stat"><small>Multiplikator</small><b id="mult">x1</b></div>
+  </div>
+  <div class="tbtns">
+    <button id="btnInstall" class="hidden" title="Als App installieren">📲</button>
+    <button id="btnIndex" title="Brainrot-Index (I)">📖<span class="lbl"> Index</span></button>
+    <button id="btnSound" title="Soundeffekte (M)">🔊</button>
+    <button id="btnVoice" title="Italienische Sprachausgabe">🗣️</button>
+    <button id="btnHelp" title="Anleitung">❓</button>
+  </div>
+</header>
+
+<section class="beltwrap">
+  <div class="belt-title">
+    <span>🛒 Fließband – <span class="tapword">tippe</span> auf einen Brainrot, um ihn zu kaufen</span>
+    <span id="eventBar" class="eventbar hidden"></span>
+  </div>
+  <div class="belt" id="belt"></div>
+</section>
+
+<main class="main">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>🏰 Basis <span id="slotInfo"></span></h2>
+      <div class="headbtns">
+        <button class="smallbtn lockbtn" id="btnLock" title="Basis sperren (L)">🔒 Sperren</button>
+        <button class="smallbtn" id="btnMerge" title="Alle passenden Paare fusionieren (F)">⚡ Auto-Fusion</button>
+        <div id="sellZone" class="sellzone">💰 Verkaufen</div>
+      </div>
+    </div>
+    <div id="base" class="base"></div>
+    <div class="hint" id="hint"></div>
+  </section>
+
+  <aside class="panel">
+    <h3 class="first">Upgrades</h3>
+    <div id="shop"></div>
+    <h3>Rebirth</h3>
+    <div id="rebirth"></div>
+    <h3>Protokoll</h3>
+    <div id="log" class="log"></div>
+  </aside>
+</main>
+
+<footer>Fan-Projekt zum Spaß · Figurennamen stammen aus Internet-Memes (Italian/Soviet Brainrot) · keine kommerzielle Nutzung · Spielstand wird lokal auf dem Gerät gespeichert</footer>
+
+<div id="announce" class="announce"></div>
+<div id="modal" class="modal hidden">
+  <div class="modal-box"><button class="close" id="modalClose" aria-label="Schließen">✕</button><div id="modalBody"></div></div>
+</div>
+
+<script src="js/game.js"></script>
+</body>
+</html>
