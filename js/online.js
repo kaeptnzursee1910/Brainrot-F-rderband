@@ -7,6 +7,21 @@
 const CFG = window.BRAINROT_CONFIG || {};
 const ONLINE_READY = !!(CFG.supabaseUrl && CFG.supabaseAnonKey && window.supabase && window.supabase.createClient);
 const USERNAME_RE = /^[A-Za-z0-9_]{3,16}$/;
+const MIN_PW_NEW = 8;            // neue Konten: mind. 8 Zeichen (Anmelden alter Konten geht weiter ab 6)
+const CAPTCHA_KEY = CFG.turnstileSiteKey || "";
+
+// Schimpfwort-Filter für Spielernamen (gleiche Liste wie in supabase/schema.sql)
+const BAD_WORDS = ["arschloch", "wichser", "hurensohn", "fotze", "schlampe", "missgeburt", "spast", "behindert",
+  "nutte", "ficker", "ficken", "schwuchtel", "nazi", "hitler", "kanake", "neger", "nigger", "nigga", "fuck",
+  "shit", "bitch", "cunt", "pussy", "whore", "slut", "retard", "faggot", "porn", "penis", "vagina", "titten",
+  "scheisse", "pisser", "kacke", "wixer", "hure", "sieg_heil", "siegheil"];
+function normName(n) {
+  return n.toLowerCase().replace(/[013457_]/g, c => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "_": "" }[c]));
+}
+function isBadName(n) {
+  const x = normName(n);
+  return BAD_WORDS.some(w => x.includes(w.replace(/_/g, "")));
+}
 const CLOUD_INTERVAL_MS = 60000;   // automatisch alle 60 s ins Konto speichern
 const CLOUD_MIN_GAP_MS = 15000;    // nie öfter als alle 15 s
 
@@ -34,6 +49,9 @@ function germanAuthError(err) {
   if (/rate limit|too many/i.test(m)) return "Zu viele Versuche – bitte kurz warten.";
   if (/email.*(invalid|not authorized)/i.test(m)) return "Anmeldung vom Server abgelehnt (E-Mail-Domain). Siehe README: usernameEmailDomain.";
   if (/confirm/i.test(m)) return "Konto muss bestätigt werden – in Supabase „Confirm email“ ausschalten (siehe README).";
+  if (/captcha/i.test(m)) return "Roboter-Prüfung fehlgeschlagen – bitte nochmal bestätigen.";
+  if (/nicht erlaubt/i.test(m)) return "Dieser Spielername ist nicht erlaubt.";
+  if (/weak|pwned|leaked/i.test(m)) return "Dieses Passwort ist zu unsicher – bitte ein anderes wählen.";
   if (/fetch|network|failed to/i.test(m)) return "Keine Verbindung zum Server. Bist du online?";
   return m || "Unbekannter Fehler.";
 }
@@ -149,14 +167,19 @@ async function doLogin(register) {
   const pw = $("accPw").value || "";
   const msg = $("accMsg");
   if (!USERNAME_RE.test(name)) { msg.textContent = "Spielername: 3–16 Zeichen, nur Buchstaben, Zahlen und _."; return; }
-  if (pw.length < 6) { msg.textContent = "Das Passwort muss mindestens 6 Zeichen haben."; return; }
+  if (register && isBadName(name)) { msg.textContent = "Dieser Spielername ist nicht erlaubt – bitte einen anderen wählen."; return; }
+  if (register && pw.length < MIN_PW_NEW) { msg.textContent = `Das Passwort muss mindestens ${MIN_PW_NEW} Zeichen haben.`; return; }
+  if (register && pw.toLowerCase().includes(name.toLowerCase())) { msg.textContent = "Das Passwort darf den Spielernamen nicht enthalten."; return; }
+  if (pw.length < 6) { msg.textContent = "Spielername oder Passwort falsch."; return; }
+  if (CAPTCHA_KEY && !captchaToken) { msg.textContent = "Bitte bestätige zuerst unten, dass du kein Roboter bist."; return; }
   msg.textContent = register ? "Konto wird erstellt …" : "Anmeldung läuft …";
   document.querySelectorAll("#modalBody button").forEach(b => { b.disabled = true; });
   try {
     const email = usernameToEmail(name);
+    const captcha = CAPTCHA_KEY ? { captchaToken } : {};
     const res = register
-      ? await sb.auth.signUp({ email, password: pw, options: { data: { username: name } } })
-      : await sb.auth.signInWithPassword({ email, password: pw });
+      ? await sb.auth.signUp({ email, password: pw, options: Object.assign({ data: { username: name } }, captcha) })
+      : await sb.auth.signInWithPassword({ email, password: pw, options: captcha });
     if (res.error) throw res.error;
     if (!res.data.session) throw new Error("confirm");
     await setAccountFromSession(res.data.session);
@@ -168,7 +191,48 @@ async function doLogin(register) {
   } catch (e) {
     msg.textContent = germanAuthError(e);
     document.querySelectorAll("#modalBody button").forEach(b => { b.disabled = false; });
+  } finally {
+    resetCaptcha();   // ein CAPTCHA-Token gilt nur für einen Versuch
   }
+}
+
+/* ---------- Roboter-Prüfung (Cloudflare Turnstile) ---------- */
+let captchaToken = "", captchaWidget = null, turnstileLoading = null;
+function loadTurnstile() {
+  if (window.turnstile) return Promise.resolve();
+  if (!turnstileLoading) {
+    turnstileLoading = new Promise((resolve, reject) => {
+      const sc = document.createElement("script");
+      sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      sc.async = true;
+      sc.onload = () => resolve();
+      sc.onerror = () => { turnstileLoading = null; reject(new Error("Roboter-Prüfung konnte nicht geladen werden.")); };
+      document.head.appendChild(sc);
+    });
+  }
+  return turnstileLoading;
+}
+async function renderCaptcha() {
+  const box = $("captchaBox");
+  if (!CAPTCHA_KEY || !box) return;
+  captchaToken = "";
+  try {
+    await loadTurnstile();
+    if (!document.body.contains(box)) return;
+    captchaWidget = window.turnstile.render(box, {
+      sitekey: CAPTCHA_KEY, language: "de", theme: "dark",
+      callback: t => { captchaToken = t; },
+      "expired-callback": () => { captchaToken = ""; },
+      "error-callback": () => { captchaToken = ""; }
+    });
+  } catch (e) {
+    const m = $("accMsg");
+    if (m) m.textContent = e.message + " Bist du online?";
+  }
+}
+function resetCaptcha() {
+  captchaToken = "";
+  if (captchaWidget !== null && window.turnstile) { try { window.turnstile.reset(captchaWidget); } catch (e) { /* egal */ } }
 }
 
 async function doLogout() {
@@ -192,14 +256,15 @@ function accountHTML() {
       <p>Melde dich an, damit dein Spielstand im Konto gespeichert wird – dann kannst du auf jedem Gerät weiterspielen und kommst auf die 🏆 Bestenliste.</p>
       <form id="accForm" class="accform" autocomplete="on" onsubmit="return false">
         <label>Spielername<input id="accName" name="username" autocomplete="username" maxlength="16" placeholder="z. B. Tralalero_42" autocapitalize="off" spellcheck="false"></label>
-        <label>Passwort<input id="accPw" name="password" type="password" autocomplete="current-password" placeholder="mind. 6 Zeichen"></label>
+        <label>Passwort<input id="accPw" name="password" type="password" autocomplete="current-password" placeholder="neues Konto: mind. 8 Zeichen"></label>
+        ${CAPTCHA_KEY ? `<div id="captchaBox" class="captcha"></div>` : ""}
         <div class="accbtns">
           <button type="submit" class="buybtn" data-act="login">Anmelden</button>
           <button type="button" class="smallbtn" data-act="register">Neues Konto</button>
         </div>
         <p id="accMsg" class="accmsg"></p>
       </form>
-      <p class="statsline">Keine E-Mail nötig. Der Spielername ist auf der Bestenliste für alle sichtbar – bitte nicht deinen echten vollen Namen verwenden. Merk dir dein Passwort gut, es kann nicht zurückgesetzt werden.</p>`;
+      <p class="statsline">Keine E-Mail nötig. Der Spielername ist auf der Bestenliste für alle sichtbar – bitte nicht deinen echten vollen Namen verwenden. Verwende ein Passwort, das du nirgends sonst benutzt, und merk es dir gut – es kann nicht zurückgesetzt werden. Unpassende Namen werden gelöscht.</p>`;
   }
   return `<h2>👤 ${esc(account.username)}</h2>
     <p>Dein Spielstand wird automatisch im Konto gespeichert.</p>
@@ -214,6 +279,8 @@ function accountHTML() {
 function openAccount() {
   if (pendingCloud) { askWhichSave(pendingCloud); return; }
   openModal(accountHTML());
+  captchaWidget = null;
+  if (!account) renderCaptcha();
   const n = $("accName");
   if (n && !isTouch) n.focus();
 }

@@ -8,5 +8,8 @@ window.BRAINROT_CONFIG = {
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZm53Y2VyYnpsY3d1end2cHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU2OTQ4NDcsImV4cCI6MjExMTI3MDg0N30.DfDa_UX8kc0RKdE8tL9WPgAs7lDurX5scb-CoEw4n2k",
   // Spieler melden sich nur mit Spielername an; intern wird daraus
   // "<name>@<usernameEmailDomain>" gemacht (es wird keine E-Mail verschickt).
-  usernameEmailDomain: "spieler.brainrot-fliessband.de"
+  usernameEmailDomain: "spieler.brainrot-fliessband.de",
+  // Roboter-Prüfung beim Anmelden/Registrieren (Cloudflare Turnstile, öffentlicher "Site Key").
+  // Leer = keine Prüfung. Erst eintragen und veröffentlichen, DANN in Supabase CAPTCHA einschalten.
+  turnstileSiteKey: ""
 };
