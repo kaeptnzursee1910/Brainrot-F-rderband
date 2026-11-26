@@ -19,24 +19,38 @@ const SPECIES = [
   { id: "piccione",    name: "Piccione Pizzanini",     body: "🐦", acc: "🍕", r: 0, price: 25,     inc: 1 },
   { id: "gattino",     name: "Gattino Spaghettino",    body: "🐱", acc: "🍝", r: 0, price: 60,     inc: 2 },
   { id: "ranocchio",   name: "Ranocchio Toastolino",   body: "🐸", acc: "🍞", r: 0, price: 120,    inc: 4 },
+  { id: "bananita",    name: "Bananita Dolfinita",     body: "🐬", acc: "🍌", r: 0, price: 180,    inc: 6 },
+  { id: "burbaloni",   name: "Burbaloni Luliloli",     body: "🦫", acc: "🥥", r: 0, price: 260,    inc: 8 },
   { id: "trippi",      name: "Trippi Troppi",          body: "🐱", acc: "🦐", r: 1, price: 400,    inc: 10 },
   { id: "chimpanzini", name: "Chimpanzini Bananini",   body: "🐒", acc: "🍌", r: 1, price: 900,    inc: 20 },
   { id: "camelini",    name: "Camelini Cactusini",     body: "🐫", acc: "🌵", r: 1, price: 1800,   inc: 36 },
+  { id: "trulimero",   name: "Trulimero Trulicina",    body: "🐟", acc: "🦵", r: 1, price: 2500,   inc: 48 },
+  { id: "boneca",      name: "Boneca Ambalabu",        body: "🐸", acc: "🛞", r: 1, price: 3400,   inc: 62 },
   { id: "ballerina",   name: "Ballerina Cappuccina",   body: "☕", acc: "🩰", r: 2, price: 5000,   inc: 90 },
   { id: "assassino",   name: "Cappuccino Assassino",   body: "🥷", acc: "☕", r: 2, price: 9000,   inc: 150 },
   { id: "leone",       name: "Leone Saponetto",        body: "🦁", acc: "🧼", r: 2, price: 16000,  inc: 250 },
+  { id: "frigo",       name: "Frigo Camelo",           body: "🐪", acc: "🧊", r: 2, price: 22000,  inc: 330 },
+  { id: "glorbo",      name: "Glorbo Fruttodrillo",    body: "🐊", acc: "🍉", r: 2, price: 30000,  inc: 420 },
   { id: "gusini",      name: "Bombombini Gusini",      body: "🦆", acc: "✈️", r: 3, price: 40000,  inc: 550 },
   { id: "tralalero",   name: "Tralalero Tralala",      body: "🦈", acc: "👟", r: 3, price: 80000,  inc: 1000 },
   { id: "pinguino",    name: "Pinguino Gelatino",      body: "🐧", acc: "🍦", r: 3, price: 140000, inc: 1600 },
+  { id: "bobritto",    name: "Bobritto Bandito",       body: "🦫", acc: "🎩", r: 3, price: 180000, inc: 2000 },
+  { id: "lirili",      name: "Lirilì Larilà",          body: "🐘", acc: "🌵", r: 3, price: 220000, inc: 2400,
+    say: "Lirilì larilà" },
   { id: "bombardiro",  name: "Bombardiro Crocodilo",   body: "🐊", acc: "✈️", r: 4, price: 250000, inc: 2800 },
   { id: "tung",        name: "Tung Tung Tung Sahur",   body: "🪵", acc: "🏏", r: 4, price: 600000, inc: 6000,
     say: "Tung tung tung tung tung tung tung tung tung sahur" },
+  { id: "patapim",     name: "Brr Brr Patapim",        body: "🐒", acc: "🌳", r: 4, price: 900000, inc: 8500,
+    say: "Brr brr patapim" },
+  { id: "vaca",        name: "La Vaca Saturno Saturnita", body: "🐄", acc: "🪐", r: 4, price: 1.3e6, inc: 11500 },
   { id: "reaktor",     name: "Genosse Reaktorschwimmer", body: "🏊", acc: "☢️", r: 5, price: 2e6, inc: 18000,
     say: "Товарищ реакторный пловец", lang: "ru-RU" },
   { id: "kosmonaut",   name: "Kantinen-Kosmonaut",     body: "🧑‍🚀", acc: "🥣", r: 5, price: 5e6, inc: 40000,
     say: "Космонавт из столовой", lang: "ru-RU" },
   { id: "spaghettosauro", name: "Spaghettosauro Supremo", body: "🦖", acc: "👑", r: 6, price: 2e7, inc: 150000 }
 ];
+// Bild jeder Figur: img/characters/<id>.svg (kann durch eigene Bilder ersetzt werden)
+for (const s of SPECIES) if (!s.img) s.img = `img/characters/${s.id}.svg`;
 const SP = Object.fromEntries(SPECIES.map(s => [s.id, s]));
 
 // Reihenfolge = aufsteigender Wert (wichtig für Math.max bei Fusion)
@@ -81,7 +95,7 @@ function defaultState() {
     upg: { luck: 0, slots: 0, tempo: 0, alarm: 0 },
     rebirths: 0,
     index: {},
-    stats: { bought: 0, merged: 0, stolen: 0, defended: 0, sold: 0 },
+    stats: { bought: 0, merged: 0, stolen: 0, defended: 0, sold: 0, earned: 0 },
     sound: true,
     voice: true,
     savedAt: Date.now()
@@ -98,6 +112,7 @@ let beltAnimDur = 0;
 let dragFrom = null, pendingRender = false;
 let selected = null;           // per Antippen ausgewählter Platz
 let modalOpen = false;
+let paused = false;
 let baseIncome = 0;
 const logLines = [];
 
@@ -109,6 +124,12 @@ const isTouch = window.matchMedia("(hover: none)").matches || navigator.maxTouch
    HILFSFUNKTIONEN
    ========================================================= */
 function rand(a, b) { return a + Math.random() * (b - a); }
+// Alle Einnahmen laufen hierüber – S.stats.earned ist die Punktzahl der Bestenliste
+function earn(x) {
+  if (!(x > 0)) return;
+  S.money += x;
+  S.stats.earned = (S.stats.earned || 0) + x;
+}
 
 function fmt(n) {
   n = Number(n) || 0;
@@ -141,8 +162,19 @@ function itemWidth() { return parseFloat(getComputedStyle(beltEl).getPropertyVal
 function creatureHTML(sp, mut, cls, delayIdx) {
   const delay = -((delayIdx === undefined ? Math.random() * 7 : delayIdx) * 0.17 % 1.4).toFixed(2);
   return `<div class="creature ${cls || ""} mut-${MUTATIONS[mut].id}" style="animation-delay:${delay}s">` +
-         `<span class="body emoji">${sp.body}</span><span class="acc emoji">${sp.acc}</span></div>`;
+         `<img class="cimg" src="${sp.img}" alt="${sp.name}" draggable="false" data-sp="${sp.id}"></div>`;
 }
+function emojiHTML(sp) {
+  return `<span class="body emoji">${sp.body}</span><span class="acc emoji">${sp.acc}</span>`;
+}
+// Fehlt ein Bild, wird stattdessen das Emoji angezeigt
+document.addEventListener("error", e => {
+  const t = e.target;
+  if (t && t.classList && t.classList.contains("cimg") && SP[t.dataset.sp]) {
+    t.parentNode.classList.add("noimg");
+    t.outerHTML = emojiHTML(SP[t.dataset.sp]);
+  }
+}, true);
 
 function discover(id, mut) {
   if (!Array.isArray(S.index[id])) S.index[id] = [false, false, false, false];
@@ -501,7 +533,7 @@ function sell(i) {
   const sp = SP[b.id];
   const v = sellValue(b);
   if (sp.r >= 3 && !confirm(`${sp.name} wirklich für ₤ ${fmt(v)} verkaufen?`)) return;
-  S.money += v;
+  earn(v);
   S.slots[i] = null;
   S.stats.sold++;
   if (selected === i) selected = null;
@@ -709,7 +741,7 @@ function hitThief(e) {
   if (thief.clicks <= 0) {
     const b = S.slots[thief.slot];
     const reward = Math.max(50, Math.round(incomeOf(b) * permMult() * 15));
-    S.money += reward;
+    earn(reward);
     S.stats.defended++;
     announce(`🛡️ Dieb verjagt! Belohnung +₤ ${fmt(reward)}`, "good");
     log(`🛡️ Dieb verjagt (+₤ ${fmt(reward)})`);
@@ -797,7 +829,7 @@ function renderRebirth() {
 function doRebirth() {
   if (S.money < rebirthCost()) { SFX.deny(); return; }
   if (!confirm("Rebirth durchführen? Lire, Basis und Upgrades werden zurückgesetzt.")) return;
-  const keep = { index: S.index, rebirths: S.rebirths + 1, stats: S.stats, sound: S.sound, voice: S.voice };
+  const keep = { index: S.index, rebirths: S.rebirths + 1, stats: S.stats, sound: S.sound, voice: S.voice, owner: S.owner };
   S = Object.assign(defaultState(), keep);
   S.money = 100 * (1 + keep.rebirths);
   thief = null;
@@ -858,9 +890,11 @@ function openHelp() {
       <li><b>Ereignisse:</b> Goldregen, Tung-Tung-Turbo und Tralalero-Ansturm tauchen zufällig auf.</li>
       <li><b>Index:</b> Jede neu entdeckte Art gibt dauerhaft +2 % Einkommen.</li>
       <li><b>Rebirth:</b> Neustart mit dauerhaft +50 % Einkommen.</li>
+      <li><b>Konto 👤 & Bestenliste 🏆:</b> Mit Spielername und Passwort anmelden – dann wird dein Spielstand im Konto gespeichert, du kannst auf jedem Gerät weiterspielen und dich mit anderen messen.</li>
+      <li><b>Pause ⏸️:</b> hält das ganze Spiel an – Fließband, Einkommen, Diebe und Ereignisse.</li>
       ${install}
     </ul>
-    <p><b>Tasten (Computer):</b> L = Sperre · F = Auto-Fusion · I = Index · M = Ton an/aus · Esc = Fenster schließen / Auswahl aufheben</p>
+    <p><b>Tasten (Computer):</b> P = Pause · L = Sperre · F = Auto-Fusion · I = Index · M = Ton an/aus · Esc = Fenster schließen / Auswahl aufheben</p>
     <p class="statsline">Sprachausgabe: nutzt die auf dem Gerät verfügbaren Stimmen (auf iPhone/iPad und in Microsoft Edge sind italienische Stimmen meist vorhanden). Auf dem iPhone muss der Stumm-Schalter aus sein, damit Töne zu hören sind.</p>
     <p><button class="dangerbtn" id="btnReset">🗑️ Spielstand löschen</button></p>
   `);
@@ -887,31 +921,68 @@ function load() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
-    const d = JSON.parse(raw);
-    const def = defaultState();
-    S = Object.assign(def, d);
-    S.upg = Object.assign(defaultState().upg, d.upg || {});
-    S.stats = Object.assign(defaultState().stats, d.stats || {});
-    for (const k of Object.keys(UPGRADES)) {
-      S.upg[k] = Math.min(UPGRADES[k].max, Math.max(0, Math.floor(Number(S.upg[k]) || 0)));
-    }
-    S.money = Number.isFinite(Number(S.money)) ? Number(S.money) : 100;
-    S.rebirths = Math.max(0, Math.floor(Number(S.rebirths) || 0));
-    if (typeof S.index !== "object" || !S.index) S.index = {};
-    for (const k of Object.keys(S.index)) {
-      if (!SP[k] || !Array.isArray(S.index[k])) delete S.index[k];
-    }
-    const n = slotCount();
-    const slots = Array.isArray(d.slots) ? d.slots.slice(0, n) : [];
-    while (slots.length < n) slots.push(null);
-    S.slots = slots.map(b => (b && SP[b.id] && MUTATIONS[b.mut])
-      ? { id: b.id, mut: b.mut, lvl: Math.min(MAX_LVL, Math.max(1, Math.floor(b.lvl) || 1)) }
-      : null);
+    S = normalizeState(JSON.parse(raw));
     return true;
   } catch (e) {
     S = defaultState();
     return false;
   }
+}
+
+// Prüft und ergänzt einen gespeicherten Spielstand (lokal oder aus dem Konto)
+function normalizeState(d) {
+  if (!d || typeof d !== "object") throw new Error("ungültiger Spielstand");
+  const st = Object.assign(defaultState(), d);
+  st.upg = Object.assign(defaultState().upg, d.upg || {});
+  st.stats = Object.assign(defaultState().stats, d.stats || {});
+  for (const k of Object.keys(UPGRADES)) {
+    st.upg[k] = Math.min(UPGRADES[k].max, Math.max(0, Math.floor(Number(st.upg[k]) || 0)));
+  }
+  st.money = Number.isFinite(Number(st.money)) ? Number(st.money) : 100;
+  st.rebirths = Math.max(0, Math.floor(Number(st.rebirths) || 0));
+  if (typeof st.index !== "object" || !st.index || Array.isArray(st.index)) st.index = {};
+  for (const k of Object.keys(st.index)) {
+    if (!SP[k] || !Array.isArray(st.index[k])) delete st.index[k];
+  }
+  const n = BASE_SLOTS + st.upg.slots;
+  const slots = Array.isArray(d.slots) ? d.slots.slice(0, n) : [];
+  while (slots.length < n) slots.push(null);
+  st.slots = slots.map(b => (b && SP[b.id] && MUTATIONS[b.mut])
+    ? { id: b.id, mut: b.mut, lvl: Math.min(MAX_LVL, Math.max(1, Math.floor(b.lvl) || 1)) }
+    : null);
+  st.stats.earned = Math.max(Number(st.stats.earned) || 0, st.money);
+  st.savedAt = Number(st.savedAt) || Date.now();
+  return st;
+}
+
+// Offline-Einnahmen (50 %, max. 2 h) seit dem letzten Speichern gutschreiben
+function applyOfflineGain() {
+  const away = (Date.now() - (Number(S.savedAt) || Date.now())) / 1000;
+  if (away <= 30) return;
+  const gain = totalIncome() * Math.min(away, OFFLINE_MAX_S) * 0.5;
+  if (gain > 0) {
+    earn(gain);
+    announce(`👋 Willkommen zurück! Deine Brainrots haben ₤ ${fmt(gain)} verdient.`, "good");
+    log(`💤 Offline-Einnahmen: +₤ ${fmt(gain)}`);
+  }
+}
+
+// Ganzen Spielstand ersetzen (z. B. nach dem Anmelden mit dem Konto-Spielstand)
+function replaceState(d, withOffline = true) {
+  const keepSettings = { sound: S.sound, voice: S.voice };
+  S = normalizeState(d);
+  if (typeof d.sound !== "boolean") S.sound = keepSettings.sound;
+  if (typeof d.voice !== "boolean") S.voice = keepSettings.voice;
+  thief = null;
+  selected = null;
+  if (dragFrom !== null) { press = null; cleanupDrag(); }
+  nextThiefAt = performance.now() + 60000;
+  recalc();
+  updateToggles();
+  renderShop();
+  renderBase();
+  if (withOffline) applyOfflineGain();
+  save();
 }
 
 /* =========================================================
@@ -963,14 +1034,21 @@ function loop(now) {
   let dt = (now - last) / 1000;
   last = now;
 
+  // Pause: nichts läuft weiter, alle Timer werden verschoben
+  if (paused) {
+    shiftTimers(dt * 1000, now);
+    requestAnimationFrame(loop);
+    return;
+  }
+
   // App/Tab war im Hintergrund: Einkommen nachzahlen (max. 2 h), Timer verschieben
   if (dt > 2) {
-    S.money += totalIncome() * Math.min(dt, OFFLINE_MAX_S);
+    earn(totalIncome() * Math.min(dt, OFFLINE_MAX_S));
     shiftTimers(dt * 1000, now);
     dt = 0;
   }
 
-  S.money += totalIncome() * dt;
+  earn(totalIncome() * dt);
   updateBelt(dt);
   updateThief(now, dt * 1000);
   updateEvents(now);
@@ -984,6 +1062,28 @@ function loop(now) {
 
   requestAnimationFrame(loop);
 }
+
+/* =========================================================
+   PAUSE
+   ========================================================= */
+function setPaused(p) {
+  if (p === paused) return;
+  paused = p;
+  if (paused && dragFrom !== null) { press = null; cleanupDrag(); }
+  document.body.classList.toggle("paused", paused);
+  $("pauseOverlay").classList.toggle("hidden", !paused);
+  $("btnPause").textContent = paused ? "▶️" : "⏸️";
+  $("btnPause").title = paused ? "Weiter (P)" : "Pause (P)";
+  if (paused) {
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    $("pauseStats").textContent = `₤ ${fmt(S.money)} · ${fmt(totalIncome())}/s · ${discoveredCount()}/${SPECIES.length} Brainrots entdeckt`;
+    save();
+  } else {
+    last = performance.now();
+    SFX.pick();
+  }
+}
+function togglePause() { setPaused(!paused); }
 
 /* =========================================================
    EREIGNIS-HANDLER
@@ -1001,6 +1101,8 @@ $("shop").addEventListener("click", e => {
 });
 $("rebirth").addEventListener("click", e => { if (e.target.closest("#btnRebirth")) doRebirth(); });
 $("btnLock").addEventListener("click", lockBase);
+$("btnPause").addEventListener("click", togglePause);
+$("btnResume").addEventListener("click", () => setPaused(false));
 $("btnMerge").addEventListener("click", autoMerge);
 $("btnIndex").addEventListener("click", openIndex);
 $("btnHelp").addEventListener("click", openHelp);
@@ -1024,7 +1126,10 @@ document.addEventListener("keydown", e => {
     return;
   }
   if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   const k = e.key.toLowerCase();
+  if (k === "p") { togglePause(); return; }
+  if (paused) return;
   if (k === "l") lockBase();
   else if (k === "f") autoMerge();
   else if (k === "i") { if (modalOpen) closeModal(); else openIndex(); }
@@ -1090,15 +1195,7 @@ if ("serviceWorker" in navigator && (location.protocol === "https:" || location.
   for (let x = W - bw - 24; x > -bw; x -= bw + 44) spawnBeltItem(x, true);
 
   if (hadSave) {
-    const away = (Date.now() - (Number(S.savedAt) || Date.now())) / 1000;
-    if (away > 30) {
-      const gain = totalIncome() * Math.min(away, OFFLINE_MAX_S) * 0.5;
-      if (gain > 0) {
-        S.money += gain;
-        announce(`👋 Willkommen zurück! Deine Brainrots haben ₤ ${fmt(gain)} verdient.`, "good");
-        log(`💤 Offline-Einnahmen: +₤ ${fmt(gain)}`);
-      }
-    }
+    applyOfflineGain();
     log("💾 Spielstand geladen.");
   } else {
     log("🎬 Neues Spiel gestartet – kaufe deinen ersten Brainrot!");

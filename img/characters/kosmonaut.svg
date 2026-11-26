@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="suit" x1="0" y1="0" x2="1" y2="0"><stop offset="0.00" stop-color="#ffffff"/><stop offset="0.50" stop-color="#d5dae1"/><stop offset="1.00" stop-color="#aab2bd"/></linearGradient><radialGradient id="visor" cx="0.35" cy="0.3" r="0.9"><stop offset="0.00" stop-color="#cfeeff"/><stop offset="0.50" stop-color="#5aa7d9"/><stop offset="1.00" stop-color="#1f4f7a"/></radialGradient><radialGradient id="skin3" cx="0.4" cy="0.35" r="0.8"><stop offset="0.00" stop-color="#f6d2b4"/><stop offset="1.00" stop-color="#d9a07a"/></radialGradient><radialGradient id="borsch" cx="0.4" cy="0.35" r="0.7"><stop offset="0.00" stop-color="#d6334a"/><stop offset="1.00" stop-color="#8a1426"/></radialGradient></defs><rect x="50" y="118" width="100" height="74" rx="26" fill="url(#suit)" stroke="#21150f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="82" y="134" width="36" height="22" rx="4" fill="#7d8796" stroke="#21150f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="91" cy="145" r="3" fill="#ff4d4d"/><circle cx="100" cy="145" r="3" fill="#3ddc84"/><circle cx="109" cy="145" r="3" fill="#ffd400"/>
+  <path d="M60 170 h80" stroke="#aab2bd" stroke-width="3"/>
+  <circle cx="100" cy="72" r="56" fill="url(#suit)" stroke="#21150f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="100" y="124" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="15" fill="#d42a2a">СССР</text>
+  <circle cx="100" cy="76" r="40" fill="url(#visor)" stroke="#21150f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="100" cy="82" r="26" fill="url(#skin3)"/>
+  <ellipse cx="90" cy="78" rx="5.5" ry="4.51" fill="#f7f2e6" stroke="#21150f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="90.55" cy="78" r="3.41" fill="#3b5a8a"/><circle cx="90.55" cy="78" r="1.65" fill="#000"/><circle cx="91.76" cy="76.625" r="0.935" fill="#fff"/><path d="M84.5 77.45 Q90 71.95 95.5 77.45" fill="none" stroke="#21150f" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="110" cy="78" rx="5.5" ry="4.51" fill="#f7f2e6" stroke="#21150f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="110.55" cy="78" r="3.41" fill="#3b5a8a"/><circle cx="110.55" cy="78" r="1.65" fill="#000"/><circle cx="111.76" cy="76.625" r="0.935" fill="#fff"/><path d="M104.5 77.45 Q110 71.95 115.5 77.45" fill="none" stroke="#21150f" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M93 92 q7 5 14 0" stroke="#21150f" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M70 58 q14 -16 32 -14" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity=".75"/>
+  <path d="M100 12 l4 9 h10 l-8 6 l3 10 l-9 -6 l-9 6 l3 -10 l-8 -6 h10 z" fill="#d42a2a" stroke="#21150f" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M148 140 q22 0 24 -18" fill="none" stroke="#21150f" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/><path d="M148 140 q22 0 24 -18" fill="none" stroke="url(#suit)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M138 118 h64 q-4 36 -32 36 q-28 0 -32 -36 z" fill="#f2f2f2" stroke="#21150f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M142 128 q28 8 56 0" stroke="#3d8bff" stroke-width="3" fill="none"/>
+  <ellipse cx="170" cy="118" rx="32" ry="7" fill="url(#borsch)" stroke="#21150f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  <ellipse cx="164" cy="117" rx="6" ry="2" fill="#fff" opacity=".8"/>
+  <path d="M184 116 L198 84" stroke="#c4cad6" stroke-width="5" stroke-linecap="round"/>
+  <path d="M160 104 q-4 -10 2 -18 M172 102 q-4 -10 2 -18" stroke="#fff" stroke-width="2.5" fill="none" opacity=".75" stroke-linecap="round"/></svg>

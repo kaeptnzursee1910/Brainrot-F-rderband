@@ -27,6 +27,9 @@
   </div>
   <div class="tbtns">
     <button id="btnInstall" class="hidden" title="Als App installieren">📲</button>
+    <button id="btnAccount" title="Anmelden / Konto erstellen">👤<span class="lbl"> Anmelden</span></button>
+    <button id="btnBoard" title="Bestenliste">🏆</button>
+    <button id="btnPause" title="Pause (P)">⏸️</button>
     <button id="btnIndex" title="Brainrot-Index (I)">📖<span class="lbl"> Index</span></button>
     <button id="btnSound" title="Soundeffekte (M)">🔊</button>
     <button id="btnVoice" title="Italienische Sprachausgabe">🗣️</button>
@@ -68,11 +71,21 @@
 
 <footer>Fan-Projekt zum Spaß · Figurennamen stammen aus Internet-Memes (Italian/Soviet Brainrot) · keine kommerzielle Nutzung · Spielstand wird lokal auf dem Gerät gespeichert</footer>
 
+<div id="pauseOverlay" class="pause hidden">
+  <div class="pause-box">
+    <div class="pause-title">⏸️ Pause</div>
+    <p id="pauseStats" class="statsline"></p>
+    <button id="btnResume" class="bigbtn">▶️ Weiter</button>
+  </div>
+</div>
 <div id="announce" class="announce"></div>
 <div id="modal" class="modal hidden">
   <div class="modal-box"><button class="close" id="modalClose" aria-label="Schließen">✕</button><div id="modalBody"></div></div>
 </div>
 
+<script src="config.js"></script>
+<script src="js/vendor/supabase-2.45.4.min.js"></script>
 <script src="js/game.js"></script>
+<script src="js/online.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
   --panel:rgba(20,10,35,.85); --line:rgba(255,255,255,.12);
   --muted:#bba9d6; --accent:#ffd23f; --good:#3ddc84; --bad:#ff4d6d;
   --bw:126px;   /* Breite eines Fließband-Elements */
-  --bh:190px;   /* Höhe des Fließbands */
+  --bh:196px;   /* Höhe des Fließbands */
   --slotw:122px; --sloth:160px;
   --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
   --sal:env(safe-area-inset-left,0px); --sar:env(safe-area-inset-right,0px);
@@ -71,14 +71,16 @@ button{font-family:inherit;touch-action:manipulation}
 .binc{font-size:11px;color:var(--muted)}
 
 /* Kreaturen */
-.creature{position:relative;display:inline-block;width:72px;height:72px;font-size:52px;line-height:72px;text-align:center;animation:wobble 1.4s ease-in-out infinite}
+.creature{position:relative;display:inline-block;vertical-align:top;width:72px;height:72px;font-size:52px;line-height:72px;text-align:center;animation:wobble 1.4s ease-in-out infinite}
 .creature .acc{position:absolute;right:-6px;bottom:-2px;font-size:28px;line-height:1}
 .creature.small{width:56px;height:56px;font-size:40px;line-height:56px}
 .creature.small .acc{font-size:22px}
+.creature img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.creature.small{width:62px;height:62px}
 @keyframes wobble{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-4px)}}
-.mut-gold span{filter:sepia(1) saturate(5) hue-rotate(-10deg) brightness(1.05) drop-shadow(0 0 6px #ffd700)}
-.mut-diamond span{filter:sepia(1) saturate(4) hue-rotate(150deg) brightness(1.2) drop-shadow(0 0 8px #8ff)}
-.mut-rainbow span{animation:rainbow 1.5s linear infinite}
+.mut-gold span,.mut-gold img{filter:sepia(1) saturate(5) hue-rotate(-10deg) brightness(1.05) drop-shadow(0 0 6px #ffd700)}
+.mut-diamond span,.mut-diamond img{filter:sepia(1) saturate(4) hue-rotate(150deg) brightness(1.2) drop-shadow(0 0 8px #8ff)}
+.mut-rainbow span,.mut-rainbow img{animation:rainbow 1.5s linear infinite}
 @keyframes rainbow{
   from{filter:sepia(1) saturate(5) hue-rotate(0deg) drop-shadow(0 0 8px #f0f)}
   to{filter:sepia(1) saturate(5) hue-rotate(360deg) drop-shadow(0 0 8px #0ff)}
@@ -167,11 +169,41 @@ h3.first{margin-top:0}
 .dot.on.d-rainbow{background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}
 .statsline{color:var(--muted);font-size:13px}
 .modal-box li{margin-bottom:4px}
+/* Konto & Bestenliste */
+#btnAccount.on{border-color:var(--good);color:#fff}
+.accform{display:flex;flex-direction:column;gap:10px;margin:12px 0;max-width:380px}
+.accform label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}
+.accform input{font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:2px solid var(--line);background:#2a1a45;color:#fff;user-select:text;-webkit-user-select:text}
+.accform input:focus{outline:none;border-color:var(--accent)}
+.accbtns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.accmsg{min-height:18px;color:var(--accent);font-weight:700;margin:0}
+.err{color:var(--bad);font-weight:700}
+.choice{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.choicebtn{display:flex;flex-direction:column;gap:4px;text-align:left;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:16px;cursor:pointer}
+.choicebtn:hover,.choicebtn:active{border-color:var(--accent)}
+.choicebtn small{color:var(--muted);font-size:13px}
+.boardwrap{overflow-x:auto;margin:8px 0}
+.board{width:100%;border-collapse:collapse;font-size:14px}
+.board th{text-align:left;color:var(--muted);font-size:12px;padding:6px;border-bottom:1px solid var(--line)}
+.board td{padding:7px 6px;border-bottom:1px solid var(--line)}
+.board .rk{width:36px;text-align:center;font-weight:900}
+.board .nm{font-weight:700;word-break:break-all}
+.board .num{text-align:right;white-space:nowrap}
+.board tr.me td{background:rgba(255,210,63,.16);color:var(--accent)}
+code{background:rgba(255,255,255,.1);padding:1px 5px;border-radius:5px}
+
+/* Pause */
+.pause{position:fixed;inset:0;z-index:90;background:rgba(10,4,20,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:var(--sat) var(--sar) var(--sab) var(--sal)}
+.pause-box{background:#1f1233;border:2px solid var(--accent);border-radius:20px;padding:24px 28px;text-align:center;width:min(360px,90vw)}
+.pause-title{font-size:34px;font-weight:900;color:var(--accent);text-shadow:3px 3px 0 #ff2d6f}
+.bigbtn{width:100%;padding:14px;font-size:19px;font-weight:900;border:0;border-radius:14px;cursor:pointer;color:#fff;background:linear-gradient(#4dd0ff,#1f7fbf);box-shadow:0 4px 0 #11507a;margin-top:6px}
+.bigbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #11507a}
+body.paused *{animation-play-state:paused!important}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 18px;opacity:.8}
 
 /* ---------- Tablet / Handy ---------- */
 @media(max-width:700px){
-  :root{--bw:104px;--bh:160px;--slotw:100px;--sloth:136px}
+  :root{--bw:104px;--bh:170px;--slotw:100px;--sloth:136px}
   .top{padding:10px 10px 8px;gap:8px}
   .logo{font-size:20px;text-shadow:2px 2px 0 #ff2d6f}
   .stats{order:3;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
@@ -194,7 +226,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 18px;o
   .headbtns > *{flex:1;justify-content:center;text-align:center;font-size:13px;padding:6px 8px}
   .base{gap:8px;padding:6px}
   .slot{padding:4px}
-  .slot .creature.small{width:46px;height:46px;font-size:34px;line-height:46px}
+  .slot .creature.small{width:52px;height:52px;font-size:34px;line-height:52px}
   .slot .creature.small .acc{font-size:18px}
   .sname{font-size:11px}
   .slvl{font-size:12px}
@@ -205,6 +237,6 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 18px;o
 }
 /* Handy quer: Fließband flacher halten */
 @media(max-height:500px) and (orientation:landscape){
-  :root{--bh:150px}
+  :root{--bh:174px}
   .bitem .creature{width:50px;height:50px;font-size:36px;line-height:50px}
 }
