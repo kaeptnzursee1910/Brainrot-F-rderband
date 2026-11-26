@@ -41,6 +41,21 @@ function esc(t) {
 function usernameToEmail(name) {
   return `${name.toLowerCase()}@${CFG.usernameEmailDomain || "spieler.brainrot-fliessband.de"}`;
 }
+// Genauen Grund der Roboter-Prüfung anzeigen (Fehlercode von Cloudflare/Supabase)
+function captchaErrorText(m) {
+  const code = (m.match(/\(([^)]+)\)\s*$/) || [])[1] || "";
+  const why = {
+    "invalid-input-secret": "Der Secret Key in Supabase ist falsch.",
+    "missing-input-secret": "In Supabase ist kein Secret Key eingetragen.",
+    "invalid-input-response": "Cloudflare kennt das Token nicht – passt der Secret Key in Supabase zum Site Key im Spiel, und ist als Anbieter „Turnstile“ gewählt?",
+    "timeout-or-duplicate": "Die Bestätigung war abgelaufen oder wurde doppelt verwendet – bitte neu bestätigen.",
+    "no captcha_token found": "Es wurde keine Bestätigung mitgeschickt – bitte das Kästchen anklicken.",
+    "bad-request": "Fehlerhafte Anfrage an Cloudflare.",
+    "internal-error": "Fehler bei Cloudflare – bitte später nochmal versuchen."
+  }[code];
+  return `Roboter-Prüfung fehlgeschlagen. ${why || "Bitte nochmal bestätigen."}${code ? ` (Code: ${code})` : ""}`;
+}
+
 function germanAuthError(err) {
   const m = String((err && err.message) || err || "");
   if (/invalid login credentials/i.test(m)) return "Spielername oder Passwort falsch.";
@@ -49,7 +64,7 @@ function germanAuthError(err) {
   if (/rate limit|too many/i.test(m)) return "Zu viele Versuche – bitte kurz warten.";
   if (/email.*(invalid|not authorized)/i.test(m)) return "Anmeldung vom Server abgelehnt (E-Mail-Domain). Siehe README: usernameEmailDomain.";
   if (/confirm/i.test(m)) return "Konto muss bestätigt werden – in Supabase „Confirm email“ ausschalten (siehe README).";
-  if (/captcha/i.test(m)) return "Roboter-Prüfung fehlgeschlagen – bitte nochmal bestätigen.";
+  if (/captcha/i.test(m)) return captchaErrorText(m);
   if (/nicht erlaubt/i.test(m)) return "Dieser Spielername ist nicht erlaubt.";
   if (/weak|pwned|leaked/i.test(m)) return "Dieses Passwort ist zu unsicher – bitte ein anderes wählen.";
   if (/fetch|network|failed to/i.test(m)) return "Keine Verbindung zum Server. Bist du online?";
