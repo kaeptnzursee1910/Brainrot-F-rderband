@@ -36,6 +36,17 @@ Danach startet das Spiel im Vollbild mit eigenem Icon und funktioniert auch **of
 - Soundeffekte, italienische/russische Sprachausgabe, Vibration (Android)
 - Spielstand wird lokal auf dem Gerät gespeichert
 
+## Figuren-Bilder
+Jede Figur hat ein eigenes, selbst gezeichnetes Bild in `img/characters/<id>.svg`
+(z. B. `tralalero.svg`, `tung.svg`, `spaghettosauro.svg`).
+
+**Eigene Bilder verwenden:** Datei mit gleichem Namen ersetzen – oder in `js/game.js` bei der
+Figur ein eigenes Bild angeben, z. B. `img: "img/characters/tralalero.png"`.
+Am besten quadratisch mit transparentem Hintergrund (PNG, SVG oder WebP).
+Fehlt ein Bild, zeigt das Spiel automatisch die Emoji-Variante.
+Nach dem Austauschen in `sw.js` die `CACHE`-Version erhöhen (und neue Dateinamen in `ASSETS`
+eintragen), damit installierte Apps die neuen Bilder laden.
+
 ## Veröffentlichen mit GitHub Pages
 1. Im Repository: **Settings → Pages → Source: „GitHub Actions“**.
 2. Den Code auf den Branch `main` bringen (oder den Workflow unter **Actions** manuell starten).
@@ -49,6 +60,7 @@ js/game.js            Spiellogik
 manifest.webmanifest  App-Manifest (installierbar)
 sw.js                 Service Worker (offline) – bei Änderungen CACHE-Version erhöhen
 icons/                App-Icons
+img/characters/       Bilder der 17 Figuren
 ```
 
 ---

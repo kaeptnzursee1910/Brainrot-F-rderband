@@ -1,6 +1,6 @@
 /* Service Worker: macht das Spiel offline spielbar.
    Bei Änderungen an den Dateien die Versionsnummer erhöhen. */
-const CACHE = "brainrot-fliessband-v1";
+const CACHE = "brainrot-fliessband-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -11,7 +11,24 @@ const ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
-  "./icons/apple-touch-icon.png"
+  "./icons/apple-touch-icon.png",
+  "./img/characters/assassino.svg",
+  "./img/characters/ballerina.svg",
+  "./img/characters/bombardiro.svg",
+  "./img/characters/camelini.svg",
+  "./img/characters/chimpanzini.svg",
+  "./img/characters/gattino.svg",
+  "./img/characters/gusini.svg",
+  "./img/characters/kosmonaut.svg",
+  "./img/characters/leone.svg",
+  "./img/characters/piccione.svg",
+  "./img/characters/pinguino.svg",
+  "./img/characters/ranocchio.svg",
+  "./img/characters/reaktor.svg",
+  "./img/characters/spaghettosauro.svg",
+  "./img/characters/tralalero.svg",
+  "./img/characters/trippi.svg",
+  "./img/characters/tung.svg"
 ];
 
 self.addEventListener("install", e => {

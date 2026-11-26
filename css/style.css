@@ -2,7 +2,7 @@
   --panel:rgba(20,10,35,.85); --line:rgba(255,255,255,.12);
   --muted:#bba9d6; --accent:#ffd23f; --good:#3ddc84; --bad:#ff4d6d;
   --bw:126px;   /* Breite eines Fließband-Elements */
-  --bh:190px;   /* Höhe des Fließbands */
+  --bh:196px;   /* Höhe des Fließbands */
   --slotw:122px; --sloth:160px;
   --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
   --sal:env(safe-area-inset-left,0px); --sar:env(safe-area-inset-right,0px);
@@ -71,14 +71,16 @@ button{font-family:inherit;touch-action:manipulation}
 .binc{font-size:11px;color:var(--muted)}
 
 /* Kreaturen */
-.creature{position:relative;display:inline-block;width:72px;height:72px;font-size:52px;line-height:72px;text-align:center;animation:wobble 1.4s ease-in-out infinite}
+.creature{position:relative;display:inline-block;vertical-align:top;width:72px;height:72px;font-size:52px;line-height:72px;text-align:center;animation:wobble 1.4s ease-in-out infinite}
 .creature .acc{position:absolute;right:-6px;bottom:-2px;font-size:28px;line-height:1}
 .creature.small{width:56px;height:56px;font-size:40px;line-height:56px}
 .creature.small .acc{font-size:22px}
+.creature img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.creature.small{width:62px;height:62px}
 @keyframes wobble{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-4px)}}
-.mut-gold span{filter:sepia(1) saturate(5) hue-rotate(-10deg) brightness(1.05) drop-shadow(0 0 6px #ffd700)}
-.mut-diamond span{filter:sepia(1) saturate(4) hue-rotate(150deg) brightness(1.2) drop-shadow(0 0 8px #8ff)}
-.mut-rainbow span{animation:rainbow 1.5s linear infinite}
+.mut-gold span,.mut-gold img{filter:sepia(1) saturate(5) hue-rotate(-10deg) brightness(1.05) drop-shadow(0 0 6px #ffd700)}
+.mut-diamond span,.mut-diamond img{filter:sepia(1) saturate(4) hue-rotate(150deg) brightness(1.2) drop-shadow(0 0 8px #8ff)}
+.mut-rainbow span,.mut-rainbow img{animation:rainbow 1.5s linear infinite}
 @keyframes rainbow{
   from{filter:sepia(1) saturate(5) hue-rotate(0deg) drop-shadow(0 0 8px #f0f)}
   to{filter:sepia(1) saturate(5) hue-rotate(360deg) drop-shadow(0 0 8px #0ff)}
@@ -171,7 +173,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 18px;o
 
 /* ---------- Tablet / Handy ---------- */
 @media(max-width:700px){
-  :root{--bw:104px;--bh:160px;--slotw:100px;--sloth:136px}
+  :root{--bw:104px;--bh:170px;--slotw:100px;--sloth:136px}
   .top{padding:10px 10px 8px;gap:8px}
   .logo{font-size:20px;text-shadow:2px 2px 0 #ff2d6f}
   .stats{order:3;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
@@ -194,7 +196,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 18px;o
   .headbtns > *{flex:1;justify-content:center;text-align:center;font-size:13px;padding:6px 8px}
   .base{gap:8px;padding:6px}
   .slot{padding:4px}
-  .slot .creature.small{width:46px;height:46px;font-size:34px;line-height:46px}
+  .slot .creature.small{width:52px;height:52px;font-size:34px;line-height:52px}
   .slot .creature.small .acc{font-size:18px}
   .sname{font-size:11px}
   .slvl{font-size:12px}
@@ -205,6 +207,6 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 18px;o
 }
 /* Handy quer: Fließband flacher halten */
 @media(max-height:500px) and (orientation:landscape){
-  :root{--bh:150px}
+  :root{--bh:174px}
   .bitem .creature{width:50px;height:50px;font-size:36px;line-height:50px}
 }

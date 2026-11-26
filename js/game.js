@@ -37,6 +37,8 @@ const SPECIES = [
     say: "Космонавт из столовой", lang: "ru-RU" },
   { id: "spaghettosauro", name: "Spaghettosauro Supremo", body: "🦖", acc: "👑", r: 6, price: 2e7, inc: 150000 }
 ];
+// Bild jeder Figur: img/characters/<id>.svg (kann durch eigene Bilder ersetzt werden)
+for (const s of SPECIES) if (!s.img) s.img = `img/characters/${s.id}.svg`;
 const SP = Object.fromEntries(SPECIES.map(s => [s.id, s]));
 
 // Reihenfolge = aufsteigender Wert (wichtig für Math.max bei Fusion)
@@ -141,8 +143,19 @@ function itemWidth() { return parseFloat(getComputedStyle(beltEl).getPropertyVal
 function creatureHTML(sp, mut, cls, delayIdx) {
   const delay = -((delayIdx === undefined ? Math.random() * 7 : delayIdx) * 0.17 % 1.4).toFixed(2);
   return `<div class="creature ${cls || ""} mut-${MUTATIONS[mut].id}" style="animation-delay:${delay}s">` +
-         `<span class="body emoji">${sp.body}</span><span class="acc emoji">${sp.acc}</span></div>`;
+         `<img class="cimg" src="${sp.img}" alt="${sp.name}" draggable="false" data-sp="${sp.id}"></div>`;
 }
+function emojiHTML(sp) {
+  return `<span class="body emoji">${sp.body}</span><span class="acc emoji">${sp.acc}</span>`;
+}
+// Fehlt ein Bild, wird stattdessen das Emoji angezeigt
+document.addEventListener("error", e => {
+  const t = e.target;
+  if (t && t.classList && t.classList.contains("cimg") && SP[t.dataset.sp]) {
+    t.parentNode.classList.add("noimg");
+    t.outerHTML = emojiHTML(SP[t.dataset.sp]);
+  }
+}, true);
 
 function discover(id, mut) {
   if (!Array.isArray(S.index[id])) S.index[id] = [false, false, false, false];
