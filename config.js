@@ -11,5 +11,5 @@ window.BRAINROT_CONFIG = {
   usernameEmailDomain: "spieler.brainrot-fliessband.de",
   // Roboter-Prüfung beim Anmelden/Registrieren (Cloudflare Turnstile, öffentlicher "Site Key").
   // Leer = keine Prüfung. Erst eintragen und veröffentlichen, DANN in Supabase CAPTCHA einschalten.
-  turnstileSiteKey: ""
+  turnstileSiteKey: "0x4AAAAAAGUQKBJHGKt9h1HI"
 };
