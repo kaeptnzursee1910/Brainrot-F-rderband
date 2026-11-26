@@ -169,6 +169,13 @@ h3.first{margin-top:0}
 .dot.on.d-rainbow{background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}
 .statsline{color:var(--muted);font-size:13px}
 .modal-box li{margin-bottom:4px}
+/* Pause */
+.pause{position:fixed;inset:0;z-index:90;background:rgba(10,4,20,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:var(--sat) var(--sar) var(--sab) var(--sal)}
+.pause-box{background:#1f1233;border:2px solid var(--accent);border-radius:20px;padding:24px 28px;text-align:center;width:min(360px,90vw)}
+.pause-title{font-size:34px;font-weight:900;color:var(--accent);text-shadow:3px 3px 0 #ff2d6f}
+.bigbtn{width:100%;padding:14px;font-size:19px;font-weight:900;border:0;border-radius:14px;cursor:pointer;color:#fff;background:linear-gradient(#4dd0ff,#1f7fbf);box-shadow:0 4px 0 #11507a;margin-top:6px}
+.bigbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #11507a}
+body.paused *{animation-play-state:paused!important}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 18px;opacity:.8}
 
 /* ---------- Tablet / Handy ---------- */

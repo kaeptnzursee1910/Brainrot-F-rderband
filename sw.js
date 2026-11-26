@@ -1,6 +1,6 @@
 /* Service Worker: macht das Spiel offline spielbar.
    Bei Änderungen an den Dateien die Versionsnummer erhöhen. */
-const CACHE = "brainrot-fliessband-v5";
+const CACHE = "brainrot-fliessband-v6";
 const ASSETS = [
   "./",
   "./index.html",
@@ -28,7 +28,17 @@ const ASSETS = [
   "./img/characters/spaghettosauro.svg",
   "./img/characters/tralalero.svg",
   "./img/characters/trippi.svg",
-  "./img/characters/tung.svg"
+  "./img/characters/tung.svg",
+  "./img/characters/bananita.svg",
+  "./img/characters/burbaloni.svg",
+  "./img/characters/trulimero.svg",
+  "./img/characters/boneca.svg",
+  "./img/characters/frigo.svg",
+  "./img/characters/glorbo.svg",
+  "./img/characters/bobritto.svg",
+  "./img/characters/lirili.svg",
+  "./img/characters/patapim.svg",
+  "./img/characters/vaca.svg"
 ];
 
 self.addEventListener("install", e => {

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="ban" x1="0" y1="0" x2="0" y2="1"><stop offset="0.00" stop-color="#fff27a"/><stop offset="0.50" stop-color="#f6d23a"/><stop offset="1.00" stop-color="#d9a80e"/></linearGradient><linearGradient id="peel" x1="0" y1="0" x2="0" y2="1"><stop offset="0.00" stop-color="#fff6b8"/><stop offset="0.50" stop-color="#f2cf3c"/><stop offset="1.00" stop-color="#c99a12"/></linearGradient><linearGradient id="dol" x1="0" y1="0" x2="0" y2="1"><stop offset="0.00" stop-color="#9fb7cc"/><stop offset="0.50" stop-color="#6f8ca6"/><stop offset="1.00" stop-color="#4f6a84"/></linearGradient></defs><path d="M24 130 L4 108 L8 140 L2 166 z" fill="url(#dol)" stroke="#21150f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M20 132 Q40 176 110 170 Q160 164 176 128 Q150 150 104 150 Q56 150 20 132 z" fill="url(#ban)" stroke="#21150f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M34 146 Q90 168 166 140" stroke="#c99a12" stroke-width="2" fill="none"/>
+  <path d="M60 120 Q90 64 150 74 Q190 82 196 106 Q190 116 168 114 Q150 128 100 136 Q72 138 60 120 z" fill="url(#dol)" stroke="#21150f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M168 114 Q150 126 100 134 Q120 116 168 110 z" fill="#e9f0f6"/>
+  <path d="M176 104 Q186 110 196 106" stroke="#21150f" stroke-width="2" fill="none"/>
+  <path d="M110 76 L118 54 L132 76 z" fill="url(#dol)" stroke="#21150f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="160" cy="92" r="4.5" fill="#111"/><circle cx="161.5" cy="90.5" r="1.4" fill="#fff"/>
+  <path d="M150 112 q-10 14 -24 12" stroke="#21150f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M58 132 Q30 100 40 76 Q56 96 70 124 z" fill="url(#peel)" stroke="#21150f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M150 138 Q178 128 186 96 Q164 108 140 130 z" fill="url(#peel)" stroke="#21150f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M96 146 Q90 112 106 96 Q114 120 112 146 z" fill="url(#peel)" stroke="#21150f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
