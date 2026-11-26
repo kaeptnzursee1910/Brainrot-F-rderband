@@ -64,6 +64,24 @@ Ohne Einrichtung läuft das Spiel wie bisher nur lokal; die Knöpfe 👤 und �
 Falls Supabase beim Registrieren die interne Adresse ablehnt („email invalid“), in `config.js` bei
 `usernameEmailDomain` eine andere Domain eintragen (z. B. eine eigene).
 
+### Sicherheit
+- **Passwörter:** neue Konten brauchen mindestens 8 Zeichen, das Passwort darf den Spielernamen nicht
+  enthalten. Zusätzlich in Supabase unter *Authentication → Sign In / Providers → Email* die
+  **Minimum password length** auf **8** stellen.
+- **Schimpfwort-Filter:** unpassende Spielernamen werden beim Registrieren abgelehnt und vom Server nicht
+  auf die Bestenliste gelassen (Liste in `js/online.js` und `supabase/schema.sql`).
+- **Plausibilitätsprüfung am Server:** Die Bestenliste begrenzt Punktsprünge (höchstens 5 % des bisherigen
+  Verdienstes + 1000 Lire pro Sekunde seit dem letzten Eintrag), Punkte können nicht sinken und Rebirths
+  müssen zu den verdienten Lire passen. Das ist ein grober Filter – wer sich auskennt, kann langsam
+  schummeln; auffällige Einträge im *Table Editor* löschen.
+- **Roboter-Prüfung (optional, empfohlen):** Cloudflare Turnstile beim Anmelden und Registrieren.
+  1. Auf [dash.cloudflare.com](https://dash.cloudflare.com) (kostenloses Konto) → **Turnstile** →
+     **Add widget**: Name „Brainrot“, Domain `kaeptnzursee1910.github.io`, Modus *Managed*.
+  2. Den **Site Key** in `config.js` bei `turnstileSiteKey` eintragen, committen und veröffentlichen.
+  3. **Erst danach** in Supabase *Authentication → Attack Protection* → **Enable Captcha protection**,
+     Anbieter *Turnstile*, den **Secret Key** eintragen und speichern.
+     (Umgekehrte Reihenfolge würde Anmeldungen blockieren, bis das Spiel den Site Key kennt.)
+
 ### Gut zu wissen
 - **Spielername** ist auf der Bestenliste für alle sichtbar → keinen echten vollen Namen verwenden.
 - **Passwort vergessen** lässt sich nicht zurücksetzen (keine E-Mail). Im Notfall kann der Admin
