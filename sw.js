@@ -1,11 +1,14 @@
 /* Service Worker: macht das Spiel offline spielbar.
    Bei Änderungen an den Dateien die Versionsnummer erhöhen. */
-const CACHE = "brainrot-fliessband-v6";
+const CACHE = "brainrot-fliessband-v7";
 const ASSETS = [
   "./",
   "./index.html",
   "./css/style.css",
+  "./config.js",
+  "./js/vendor/supabase-2.45.4.min.js",
   "./js/game.js",
+  "./js/online.js",
   "./manifest.webmanifest",
   "./icons/icon.svg",
   "./icons/icon-192.png",
@@ -57,6 +60,14 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
+  // Konfiguration immer zuerst frisch aus dem Netz holen
+  if (new URL(req.url).pathname.endsWith("/config.js")) {
+    e.respondWith(fetch(req).then(res => {
+      if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+      return res;
+    }).catch(() => caches.match(req, { ignoreSearch: true })));
+    return;
+  }
   e.respondWith(
     caches.open(CACHE).then(async cache => {
       const cached = await cache.match(req, { ignoreSearch: true });

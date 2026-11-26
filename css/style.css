@@ -169,6 +169,29 @@ h3.first{margin-top:0}
 .dot.on.d-rainbow{background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}
 .statsline{color:var(--muted);font-size:13px}
 .modal-box li{margin-bottom:4px}
+/* Konto & Bestenliste */
+#btnAccount.on{border-color:var(--good);color:#fff}
+.accform{display:flex;flex-direction:column;gap:10px;margin:12px 0;max-width:380px}
+.accform label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}
+.accform input{font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:2px solid var(--line);background:#2a1a45;color:#fff;user-select:text;-webkit-user-select:text}
+.accform input:focus{outline:none;border-color:var(--accent)}
+.accbtns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.accmsg{min-height:18px;color:var(--accent);font-weight:700;margin:0}
+.err{color:var(--bad);font-weight:700}
+.choice{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.choicebtn{display:flex;flex-direction:column;gap:4px;text-align:left;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:16px;cursor:pointer}
+.choicebtn:hover,.choicebtn:active{border-color:var(--accent)}
+.choicebtn small{color:var(--muted);font-size:13px}
+.boardwrap{overflow-x:auto;margin:8px 0}
+.board{width:100%;border-collapse:collapse;font-size:14px}
+.board th{text-align:left;color:var(--muted);font-size:12px;padding:6px;border-bottom:1px solid var(--line)}
+.board td{padding:7px 6px;border-bottom:1px solid var(--line)}
+.board .rk{width:36px;text-align:center;font-weight:900}
+.board .nm{font-weight:700;word-break:break-all}
+.board .num{text-align:right;white-space:nowrap}
+.board tr.me td{background:rgba(255,210,63,.16);color:var(--accent)}
+code{background:rgba(255,255,255,.1);padding:1px 5px;border-radius:5px}
+
 /* Pause */
 .pause{position:fixed;inset:0;z-index:90;background:rgba(10,4,20,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:var(--sat) var(--sar) var(--sab) var(--sal)}
 .pause-box{background:#1f1233;border:2px solid var(--accent);border-radius:20px;padding:24px 28px;text-align:center;width:min(360px,90vw)}

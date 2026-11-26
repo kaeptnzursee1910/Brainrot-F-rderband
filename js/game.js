@@ -95,7 +95,7 @@ function defaultState() {
     upg: { luck: 0, slots: 0, tempo: 0, alarm: 0 },
     rebirths: 0,
     index: {},
-    stats: { bought: 0, merged: 0, stolen: 0, defended: 0, sold: 0 },
+    stats: { bought: 0, merged: 0, stolen: 0, defended: 0, sold: 0, earned: 0 },
     sound: true,
     voice: true,
     savedAt: Date.now()
@@ -124,6 +124,12 @@ const isTouch = window.matchMedia("(hover: none)").matches || navigator.maxTouch
    HILFSFUNKTIONEN
    ========================================================= */
 function rand(a, b) { return a + Math.random() * (b - a); }
+// Alle Einnahmen laufen hierüber – S.stats.earned ist die Punktzahl der Bestenliste
+function earn(x) {
+  if (!(x > 0)) return;
+  S.money += x;
+  S.stats.earned = (S.stats.earned || 0) + x;
+}
 
 function fmt(n) {
   n = Number(n) || 0;
@@ -527,7 +533,7 @@ function sell(i) {
   const sp = SP[b.id];
   const v = sellValue(b);
   if (sp.r >= 3 && !confirm(`${sp.name} wirklich für ₤ ${fmt(v)} verkaufen?`)) return;
-  S.money += v;
+  earn(v);
   S.slots[i] = null;
   S.stats.sold++;
   if (selected === i) selected = null;
@@ -735,7 +741,7 @@ function hitThief(e) {
   if (thief.clicks <= 0) {
     const b = S.slots[thief.slot];
     const reward = Math.max(50, Math.round(incomeOf(b) * permMult() * 15));
-    S.money += reward;
+    earn(reward);
     S.stats.defended++;
     announce(`🛡️ Dieb verjagt! Belohnung +₤ ${fmt(reward)}`, "good");
     log(`🛡️ Dieb verjagt (+₤ ${fmt(reward)})`);
@@ -823,7 +829,7 @@ function renderRebirth() {
 function doRebirth() {
   if (S.money < rebirthCost()) { SFX.deny(); return; }
   if (!confirm("Rebirth durchführen? Lire, Basis und Upgrades werden zurückgesetzt.")) return;
-  const keep = { index: S.index, rebirths: S.rebirths + 1, stats: S.stats, sound: S.sound, voice: S.voice };
+  const keep = { index: S.index, rebirths: S.rebirths + 1, stats: S.stats, sound: S.sound, voice: S.voice, owner: S.owner };
   S = Object.assign(defaultState(), keep);
   S.money = 100 * (1 + keep.rebirths);
   thief = null;
@@ -884,6 +890,7 @@ function openHelp() {
       <li><b>Ereignisse:</b> Goldregen, Tung-Tung-Turbo und Tralalero-Ansturm tauchen zufällig auf.</li>
       <li><b>Index:</b> Jede neu entdeckte Art gibt dauerhaft +2 % Einkommen.</li>
       <li><b>Rebirth:</b> Neustart mit dauerhaft +50 % Einkommen.</li>
+      <li><b>Konto 👤 & Bestenliste 🏆:</b> Mit Spielername und Passwort anmelden – dann wird dein Spielstand im Konto gespeichert, du kannst auf jedem Gerät weiterspielen und dich mit anderen messen.</li>
       <li><b>Pause ⏸️:</b> hält das ganze Spiel an – Fließband, Einkommen, Diebe und Ereignisse.</li>
       ${install}
     </ul>
@@ -914,31 +921,68 @@ function load() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
-    const d = JSON.parse(raw);
-    const def = defaultState();
-    S = Object.assign(def, d);
-    S.upg = Object.assign(defaultState().upg, d.upg || {});
-    S.stats = Object.assign(defaultState().stats, d.stats || {});
-    for (const k of Object.keys(UPGRADES)) {
-      S.upg[k] = Math.min(UPGRADES[k].max, Math.max(0, Math.floor(Number(S.upg[k]) || 0)));
-    }
-    S.money = Number.isFinite(Number(S.money)) ? Number(S.money) : 100;
-    S.rebirths = Math.max(0, Math.floor(Number(S.rebirths) || 0));
-    if (typeof S.index !== "object" || !S.index) S.index = {};
-    for (const k of Object.keys(S.index)) {
-      if (!SP[k] || !Array.isArray(S.index[k])) delete S.index[k];
-    }
-    const n = slotCount();
-    const slots = Array.isArray(d.slots) ? d.slots.slice(0, n) : [];
-    while (slots.length < n) slots.push(null);
-    S.slots = slots.map(b => (b && SP[b.id] && MUTATIONS[b.mut])
-      ? { id: b.id, mut: b.mut, lvl: Math.min(MAX_LVL, Math.max(1, Math.floor(b.lvl) || 1)) }
-      : null);
+    S = normalizeState(JSON.parse(raw));
     return true;
   } catch (e) {
     S = defaultState();
     return false;
   }
+}
+
+// Prüft und ergänzt einen gespeicherten Spielstand (lokal oder aus dem Konto)
+function normalizeState(d) {
+  if (!d || typeof d !== "object") throw new Error("ungültiger Spielstand");
+  const st = Object.assign(defaultState(), d);
+  st.upg = Object.assign(defaultState().upg, d.upg || {});
+  st.stats = Object.assign(defaultState().stats, d.stats || {});
+  for (const k of Object.keys(UPGRADES)) {
+    st.upg[k] = Math.min(UPGRADES[k].max, Math.max(0, Math.floor(Number(st.upg[k]) || 0)));
+  }
+  st.money = Number.isFinite(Number(st.money)) ? Number(st.money) : 100;
+  st.rebirths = Math.max(0, Math.floor(Number(st.rebirths) || 0));
+  if (typeof st.index !== "object" || !st.index || Array.isArray(st.index)) st.index = {};
+  for (const k of Object.keys(st.index)) {
+    if (!SP[k] || !Array.isArray(st.index[k])) delete st.index[k];
+  }
+  const n = BASE_SLOTS + st.upg.slots;
+  const slots = Array.isArray(d.slots) ? d.slots.slice(0, n) : [];
+  while (slots.length < n) slots.push(null);
+  st.slots = slots.map(b => (b && SP[b.id] && MUTATIONS[b.mut])
+    ? { id: b.id, mut: b.mut, lvl: Math.min(MAX_LVL, Math.max(1, Math.floor(b.lvl) || 1)) }
+    : null);
+  st.stats.earned = Math.max(Number(st.stats.earned) || 0, st.money);
+  st.savedAt = Number(st.savedAt) || Date.now();
+  return st;
+}
+
+// Offline-Einnahmen (50 %, max. 2 h) seit dem letzten Speichern gutschreiben
+function applyOfflineGain() {
+  const away = (Date.now() - (Number(S.savedAt) || Date.now())) / 1000;
+  if (away <= 30) return;
+  const gain = totalIncome() * Math.min(away, OFFLINE_MAX_S) * 0.5;
+  if (gain > 0) {
+    earn(gain);
+    announce(`👋 Willkommen zurück! Deine Brainrots haben ₤ ${fmt(gain)} verdient.`, "good");
+    log(`💤 Offline-Einnahmen: +₤ ${fmt(gain)}`);
+  }
+}
+
+// Ganzen Spielstand ersetzen (z. B. nach dem Anmelden mit dem Konto-Spielstand)
+function replaceState(d, withOffline = true) {
+  const keepSettings = { sound: S.sound, voice: S.voice };
+  S = normalizeState(d);
+  if (typeof d.sound !== "boolean") S.sound = keepSettings.sound;
+  if (typeof d.voice !== "boolean") S.voice = keepSettings.voice;
+  thief = null;
+  selected = null;
+  if (dragFrom !== null) { press = null; cleanupDrag(); }
+  nextThiefAt = performance.now() + 60000;
+  recalc();
+  updateToggles();
+  renderShop();
+  renderBase();
+  if (withOffline) applyOfflineGain();
+  save();
 }
 
 /* =========================================================
@@ -999,12 +1043,12 @@ function loop(now) {
 
   // App/Tab war im Hintergrund: Einkommen nachzahlen (max. 2 h), Timer verschieben
   if (dt > 2) {
-    S.money += totalIncome() * Math.min(dt, OFFLINE_MAX_S);
+    earn(totalIncome() * Math.min(dt, OFFLINE_MAX_S));
     shiftTimers(dt * 1000, now);
     dt = 0;
   }
 
-  S.money += totalIncome() * dt;
+  earn(totalIncome() * dt);
   updateBelt(dt);
   updateThief(now, dt * 1000);
   updateEvents(now);
@@ -1082,6 +1126,7 @@ document.addEventListener("keydown", e => {
     return;
   }
   if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   const k = e.key.toLowerCase();
   if (k === "p") { togglePause(); return; }
   if (paused) return;
@@ -1150,15 +1195,7 @@ if ("serviceWorker" in navigator && (location.protocol === "https:" || location.
   for (let x = W - bw - 24; x > -bw; x -= bw + 44) spawnBeltItem(x, true);
 
   if (hadSave) {
-    const away = (Date.now() - (Number(S.savedAt) || Date.now())) / 1000;
-    if (away > 30) {
-      const gain = totalIncome() * Math.min(away, OFFLINE_MAX_S) * 0.5;
-      if (gain > 0) {
-        S.money += gain;
-        announce(`👋 Willkommen zurück! Deine Brainrots haben ₤ ${fmt(gain)} verdient.`, "good");
-        log(`💤 Offline-Einnahmen: +₤ ${fmt(gain)}`);
-      }
-    }
+    applyOfflineGain();
     log("💾 Spielstand geladen.");
   } else {
     log("🎬 Neues Spiel gestartet – kaufe deinen ersten Brainrot!");
