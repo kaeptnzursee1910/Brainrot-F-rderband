@@ -1,6 +1,6 @@
 /* Service Worker: macht das Spiel offline spielbar.
    Bei Änderungen an den Dateien die Versionsnummer erhöhen. */
-const CACHE = "brainrot-fliessband-v10";
+const CACHE = "brainrot-fliessband-v11";
 const ASSETS = [
   "./",
   "./index.html",

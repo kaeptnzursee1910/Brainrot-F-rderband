@@ -195,9 +195,16 @@ let actx = null;
 function audio() {
   if (!actx) {
     try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; }
+    // iOS unterbricht die Wiedergabe z. B. während der Sprachausgabe ("interrupted") – danach fortsetzen
+    if (actx) actx.onstatechange = () => { if (actx.state !== "running" && musicShouldPlay()) setTimeout(resumeAudio, 250); };
   }
-  if (actx && actx.state === "suspended") actx.resume();
+  resumeAudio();
   return actx;
+}
+function resumeAudio() {
+  if (actx && actx.state !== "running" && actx.state !== "closed") {
+    try { const p = actx.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* später nochmal */ }
+  }
 }
 function tone(freq, dur, type = "square", vol = 0.08, delay = 0, slideTo = null) {
   if (!S.sound) return;
@@ -278,9 +285,14 @@ function musicPlayStep(step, t) {
   if (pos === 1 || pos === 2 || pos === 4 || pos === 5) triad.forEach(n => mNote(n, t, d * 0.5, "triangle", 0.012));
   mTick(t, pos === 0 || pos === 3 ? 0.05 : 0.018);
 }
+let lastResumeTry = 0;
 function musicTick() {
   const a = actx;
-  if (!a || a.state !== "running") return;
+  if (!a) return;
+  if (a.state !== "running") {                       // unterbrochen: höchstens 2× pro Sekunde fortsetzen versuchen
+    if (performance.now() - lastResumeTry > 500) { lastResumeTry = performance.now(); resumeAudio(); }
+    return;
+  }
   if (MUSIC.nextTime < a.currentTime - 0.1) MUSIC.nextTime = a.currentTime + 0.05;   // nach Hängern neu einsetzen
   while (MUSIC.nextTime < a.currentTime + 0.25) {
     musicPlayStep(MUSIC.step, MUSIC.nextTime);
@@ -334,6 +346,8 @@ function say(text, pitch = 1, rate = 1, lang = "it-IT") {
     u.pitch = pitch;
     u.rate = rate;
     u.volume = 0.9;
+    // Nach der Sprachausgabe die (auf iOS unterbrochene) Musik wieder fortsetzen
+    u.onend = u.onerror = () => { resumeAudio(); setTimeout(resumeAudio, 300); };
     speechSynthesis.speak(u);
   } catch (e) { /* Sprachausgabe nicht verfügbar */ }
 }
