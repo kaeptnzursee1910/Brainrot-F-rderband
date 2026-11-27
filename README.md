@@ -29,13 +29,14 @@ Danach startet das Spiel im Vollbild mit eigenem Icon und funktioniert auch **of
 | Auto-Fusion | ⚡ Auto-Fusion | `F` |
 | Index / Ton | 📖 / 🔊 | `I` / `M` |
 | Pause | ⏸️ | `P` |
+| Musik an/aus | 🎵 | `B` |
 | Konto / Bestenliste | 👤 / 🏆 | – |
 
 ## Funktionen
 - 27 Brainrot-Arten in 7 Seltenheiten, Mutationen (Gold ×2, Diamant ×4, Regenbogen ×10)
 - Fusion bis ★★★★★, Upgrades (Glück, Plätze, Fließband-Turbo, Alarmanlage), Rebirth
 - Zufällige Ereignisse, Brainrot-Index mit Dauerbonus, Offline-Einnahmen (50 %, max. 2 h)
-- Soundeffekte, italienische/russische Sprachausgabe, Vibration (Android)
+- Hintergrundmusik (eigene Tarantella, live im Browser erzeugt – keine Musikdateien), Soundeffekte, italienische/russische Sprachausgabe, Vibration (Android)
 - Spielstand wird lokal auf dem Gerät gespeichert
 
 ## Konten & Bestenliste (online)

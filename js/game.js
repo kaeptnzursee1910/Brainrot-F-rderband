@@ -97,6 +97,7 @@ function defaultState() {
     index: {},
     stats: { bought: 0, merged: 0, stolen: 0, defended: 0, sold: 0, earned: 0 },
     sound: true,
+    music: true,
     voice: true,
     savedAt: Date.now()
   };
@@ -228,6 +229,91 @@ const SFX = {
   legendary() { [392, 523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.18, "square", 0.06, i * 0.09)); }
 };
 
+/* =========================================================
+   HINTERGRUNDMUSIK – eigene Tarantella in a-Moll (6/8), live erzeugt
+   ========================================================= */
+// Melodie als MIDI-Noten, je Takt 6 Achtel (null = Pause). Teil A und Teil B, je 8 Takte.
+const TUNE = [
+  [69, 72, 76, 81, 76, 72], [71, 72, 74, 76, null, 76], [68, 71, 76, 80, 76, 71], [74, 72, 71, 76, null, null],
+  [69, 72, 76, 81, 76, 72], [84, 83, 81, 80, 81, 83], [76, 80, 83, 86, 84, 83], [81, 76, 72, 69, null, null],
+  [77, 76, 74, 81, null, 77], [76, 74, 72, 76, null, 72], [74, 72, 71, 68, 71, 74], [72, 71, 69, 76, null, null],
+  [74, 77, 81, 86, 81, 77], [76, 81, 84, 88, 84, 81], [83, 80, 76, 83, 86, 83], [81, null, 76, 69, null, null]
+];
+// Akkord je Takt: Grundton (Bass) und Dreiklang für die Begleitung
+const CHORDS = { Am: [45, [57, 60, 64]], E: [40, [56, 59, 64]], Dm: [38, [57, 62, 65]] };
+const PROG = ["Am", "Am", "E", "E", "Am", "Am", "E", "Am", "Dm", "Am", "E", "Am", "Dm", "Am", "E", "Am"];
+const MUSIC = { step: 0, nextTime: 0, timer: null, gain: null };
+const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
+
+function mNote(m, t, dur, type, vol) {
+  const a = actx, o = a.createOscillator(), g = a.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(midiHz(m), t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g);
+  g.connect(MUSIC.gain);
+  o.start(t);
+  o.stop(t + dur + 0.02);
+}
+function mTick(t, vol) {   // leises Tamburin aus Rauschen
+  const a = actx, len = Math.floor(a.sampleRate * 0.04);
+  const buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  src.buffer = buf; f.type = "highpass"; f.frequency.value = 6000; g.gain.value = vol;
+  src.connect(f); f.connect(g); g.connect(MUSIC.gain);
+  src.start(t);
+}
+function musicStepDur() { return ev.type === "rush" ? 0.12 : 0.15; }
+function musicPlayStep(step, t) {
+  const bar = Math.floor(step / 6) % TUNE.length, pos = step % 6, d = musicStepDur();
+  const [root, triad] = CHORDS[PROG[bar]];
+  const m = TUNE[bar][pos];
+  const lift = ev.type === "turbo" ? 12 : 0;        // Tung-Tung-Turbo: eine Oktave höher
+  if (m !== null) mNote(m + lift, t, d * 0.9, "square", 0.028);
+  if (pos === 0) mNote(root, t, d * 2.6, "triangle", 0.09);
+  if (pos === 3) mNote(root + 7, t, d * 2.6, "triangle", 0.07);
+  if (pos === 1 || pos === 2 || pos === 4 || pos === 5) triad.forEach(n => mNote(n, t, d * 0.5, "triangle", 0.012));
+  mTick(t, pos === 0 || pos === 3 ? 0.05 : 0.018);
+}
+function musicTick() {
+  const a = actx;
+  if (!a || a.state !== "running") return;
+  if (MUSIC.nextTime < a.currentTime - 0.1) MUSIC.nextTime = a.currentTime + 0.05;   // nach Hängern neu einsetzen
+  while (MUSIC.nextTime < a.currentTime + 0.25) {
+    musicPlayStep(MUSIC.step, MUSIC.nextTime);
+    MUSIC.nextTime += musicStepDur();
+    MUSIC.step = (MUSIC.step + 1) % (TUNE.length * 6);
+  }
+}
+function musicShouldPlay() { return S.music && !paused && document.visibilityState === "visible"; }
+function musicStart() {
+  if (MUSIC.timer || !musicShouldPlay()) return;
+  const a = audio();
+  if (!a) return;
+  if (!MUSIC.gain) { MUSIC.gain = a.createGain(); MUSIC.gain.connect(a.destination); }
+  const g = MUSIC.gain.gain;
+  g.cancelScheduledValues(a.currentTime);
+  g.setValueAtTime(0.0001, a.currentTime);
+  g.exponentialRampToValueAtTime(0.8, a.currentTime + 1.2);   // sanft einblenden
+  MUSIC.nextTime = a.currentTime + 0.1;
+  MUSIC.timer = setInterval(musicTick, 50);
+}
+function musicStop() {
+  if (!MUSIC.timer) return;
+  clearInterval(MUSIC.timer);
+  MUSIC.timer = null;
+  if (actx && MUSIC.gain) {
+    const g = MUSIC.gain.gain, t = actx.currentTime;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(Math.max(g.value, 0.0001), t);
+    g.linearRampToValueAtTime(0, t + 0.3);                     // sanft ausblenden
+  }
+}
+function musicUpdate() { if (musicShouldPlay()) musicStart(); else musicStop(); }
+
 function findVoice(lang) {
   if (!("speechSynthesis" in window)) return null;
   const p = lang.slice(0, 2).toLowerCase();
@@ -300,6 +386,8 @@ function closeModal() {
 function updateToggles() {
   $("btnSound").textContent = S.sound ? "🔊" : "🔇";
   $("btnVoice").textContent = S.voice ? "🗣️" : "🤐";
+  const mb = $("btnMusic");
+  if (mb) { mb.textContent = "🎵"; mb.classList.toggle("off", !S.music); mb.title = S.music ? "Musik aus (B)" : "Musik an (B)"; }
 }
 
 /* =========================================================
@@ -829,7 +917,7 @@ function renderRebirth() {
 function doRebirth() {
   if (S.money < rebirthCost()) { SFX.deny(); return; }
   if (!confirm("Rebirth durchführen? Lire, Basis und Upgrades werden zurückgesetzt.")) return;
-  const keep = { index: S.index, rebirths: S.rebirths + 1, stats: S.stats, sound: S.sound, voice: S.voice, owner: S.owner };
+  const keep = { index: S.index, rebirths: S.rebirths + 1, stats: S.stats, sound: S.sound, voice: S.voice, music: S.music, owner: S.owner };
   S = Object.assign(defaultState(), keep);
   S.money = 100 * (1 + keep.rebirths);
   thief = null;
@@ -891,10 +979,11 @@ function openHelp() {
       <li><b>Index:</b> Jede neu entdeckte Art gibt dauerhaft +2 % Einkommen.</li>
       <li><b>Rebirth:</b> Neustart mit dauerhaft +50 % Einkommen.</li>
       <li><b>Konto 👤 & Bestenliste 🏆:</b> Mit Spielername und Passwort anmelden – dann wird dein Spielstand im Konto gespeichert, du kannst auf jedem Gerät weiterspielen und dich mit anderen messen.</li>
+      <li><b>Musik 🎵:</b> eine eigene Tarantella läuft im Hintergrund – mit 🎵 ein- und ausschalten. Beim Tralalero-Ansturm wird sie schneller, beim Tung-Tung-Turbo höher.</li>
       <li><b>Pause ⏸️:</b> hält das ganze Spiel an – Fließband, Einkommen, Diebe und Ereignisse.</li>
       ${install}
     </ul>
-    <p><b>Tasten (Computer):</b> P = Pause · L = Sperre · F = Auto-Fusion · I = Index · M = Ton an/aus · Esc = Fenster schließen / Auswahl aufheben</p>
+    <p><b>Tasten (Computer):</b> P = Pause · L = Sperre · F = Auto-Fusion · I = Index · M = Ton an/aus · B = Musik an/aus · Esc = Fenster schließen / Auswahl aufheben</p>
     <p class="statsline">Sprachausgabe: nutzt die auf dem Gerät verfügbaren Stimmen (auf iPhone/iPad und in Microsoft Edge sind italienische Stimmen meist vorhanden). Auf dem iPhone muss der Stumm-Schalter aus sein, damit Töne zu hören sind.</p>
     <p><button class="dangerbtn" id="btnReset">🗑️ Spielstand löschen</button></p>
   `);
@@ -969,10 +1058,12 @@ function applyOfflineGain() {
 
 // Ganzen Spielstand ersetzen (z. B. nach dem Anmelden mit dem Konto-Spielstand)
 function replaceState(d, withOffline = true) {
-  const keepSettings = { sound: S.sound, voice: S.voice };
+  const keepSettings = { sound: S.sound, voice: S.voice, music: S.music };
   S = normalizeState(d);
   if (typeof d.sound !== "boolean") S.sound = keepSettings.sound;
   if (typeof d.voice !== "boolean") S.voice = keepSettings.voice;
+  if (typeof d.music !== "boolean") S.music = keepSettings.music;
+  musicUpdate();
   thief = null;
   selected = null;
   if (dragFrom !== null) { press = null; cleanupDrag(); }
@@ -1082,6 +1173,7 @@ function setPaused(p) {
     last = performance.now();
     SFX.pick();
   }
+  musicUpdate();
 }
 function togglePause() { setPaused(!paused); }
 
@@ -1107,6 +1199,13 @@ $("btnMerge").addEventListener("click", autoMerge);
 $("btnIndex").addEventListener("click", openIndex);
 $("btnHelp").addEventListener("click", openHelp);
 $("btnSound").addEventListener("click", () => { S.sound = !S.sound; updateToggles(); save(); });
+function toggleMusic() {
+  S.music = !S.music;
+  updateToggles();
+  musicUpdate();
+  save();
+}
+$("btnMusic").addEventListener("click", toggleMusic);
 $("btnVoice").addEventListener("click", () => {
   S.voice = !S.voice;
   if (!S.voice && "speechSynthesis" in window) speechSynthesis.cancel();
@@ -1134,10 +1233,12 @@ document.addEventListener("keydown", e => {
   else if (k === "f") autoMerge();
   else if (k === "i") { if (modalOpen) closeModal(); else openIndex(); }
   else if (k === "m") { S.sound = !S.sound; updateToggles(); }
+  else if (k === "b") toggleMusic();
 });
 
 // Audio auf iOS/Android erst nach Nutzer-Geste möglich – bei jeder Berührung entsperren
-document.addEventListener("pointerdown", () => { if (S.sound) audio(); }, { passive: true });
+document.addEventListener("pointerdown", () => { if (S.sound || S.music) audio(); musicUpdate(); }, { passive: true });
+document.addEventListener("keydown", () => musicUpdate());
 
 // Speichern, wenn die App in den Hintergrund geht (iOS feuert kein beforeunload)
 window.addEventListener("beforeunload", save);
@@ -1147,6 +1248,7 @@ document.addEventListener("visibilitychange", () => {
     save();
     if (dragFrom !== null) { press = null; cleanupDrag(); }
   }
+  musicUpdate();
 });
 
 /* =========================================================
