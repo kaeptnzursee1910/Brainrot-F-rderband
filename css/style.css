@@ -40,6 +40,7 @@ button{font-family:inherit;touch-action:manipulation}
 .smallbtn:disabled{opacity:.55;cursor:not-allowed}
 @media(hover:hover){.tbtns button:hover,.smallbtn:not(:disabled):hover{background:rgba(255,255,255,.15)}}
 .tbtns button:active,.smallbtn:active{background:rgba(255,255,255,.2)}
+#btnMusic.off{opacity:.45;text-decoration:line-through}
 .lockbtn{background:linear-gradient(#4dd0ff,#1f7fbf)!important;border-color:#11507a!important;font-weight:800}
 .lockbtn:disabled{background:var(--panel)!important;border-color:var(--line)!important}
 
@@ -211,7 +212,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 18px;o
   .stat{min-width:0;padding:4px 6px}
   .stat small{font-size:9.5px;letter-spacing:.5px}
   .stat b{font-size:16px}
-  .tbtns button{padding:6px 9px;min-height:36px}
+  .tbtns{gap:4px;flex-wrap:wrap}
+  .tbtns button{padding:6px 8px;min-height:36px}
   .tbtns .lbl{display:none}
   .beltwrap{padding:0 10px 10px}
   .belt-title{font-size:12.5px;margin:0 2px 5px}
